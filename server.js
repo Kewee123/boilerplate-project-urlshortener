@@ -6,15 +6,24 @@ var mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 var cors = require('cors');
 const dns = require('dns');
-
+var crypto = require('crypto');
+var Schema = mongoose.Schema;
 var app = express();
+
+var urlSchema = new Schema({
+    url:  {type: String, required: true}, // String is shorthand for {type: String}
+    hash: {type: Number},
+});
+
+const tinyUrlModel = mongoose.model("tinyUrl", urlSchema);
+
 
 // Basic Configuration 
 var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/ 
 // mongoose.connect(process.env.DB_URI);
-mongoose.connect("mongodb+srv://userid:pw@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect("mongodb+srv://id:pw@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 /** this project needs to parse POST bodies **/
@@ -27,7 +36,12 @@ app.get('/', function(req, res){
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
-
+app.get('/api/shorturl/:shorturl', function(req,res){
+  console.log(req.params.shorturl);
+  res.json({"heo":"ere"})
+  
+  
+});
 
 app.post('/api/shorturl/new', function(req, res){
   console.log(req.body);
@@ -53,7 +67,19 @@ app.post('/api/shorturl/new', function(req, res){
         if(err) 
           res.json({"error":"invalid URL"});
         else{
-          res.json({"hello": "hello"})
+          // get the url and shorten it here
+          // store it in the database
+          var short = 1;
+          var object = {'original_url': req.body.url, 'short_url': 1};
+          
+          tinyUrlModel.findOne({object}).exec((error, result)=> {
+              if(!error && result !== undefined){
+                short = result.short+1;
+              }  
+            }
+          );
+          
+          res.json(object);
         }
       }
     )
