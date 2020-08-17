@@ -9,10 +9,10 @@ const dns = require('dns');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
 var app = express();
-
+var shortId = 1;
 var urlSchema = new Schema({
     url:  {type: String, required: true}, // String is shorthand for {type: String}
-    hash: {type: Number},
+    short_url: {type: Number},
 });
 
 const tinyUrlModel = mongoose.model("tinyUrl", urlSchema);
@@ -38,8 +38,19 @@ app.get('/', function(req, res){
 
 app.get('/api/shorturl/:shorturl', function(req,res){
   console.log(req.params.shorturl);
-  res.json({"heo":"ere"})
   
+  tinyUrlModel.findOne({short_url:req.params.shorturl}, (err,data)=>{
+    if(err) return res.send('Error reading database');
+    
+    console.log(data);
+    var re = new RegExp("^(http|htpps)://", "i");
+    
+    if(re.test(data.url)){
+      res.redirect(301, data.url)
+    } else {
+      res.redirect(301, 'http://' + data.url)
+    }
+  })
   
 });
 
@@ -69,17 +80,17 @@ app.post('/api/shorturl/new', function(req, res){
         else{
           // get the url and shorten it here
           // store it in the database
-          var short = 1;
-          var object = {'original_url': req.body.url, 'short_url': 1};
+          var object = {'url': req.body.url, 'short_url': shortId};
+          var data = new tinyUrlModel(object);
           
-          tinyUrlModel.findOne({object}).exec((error, result)=> {
-              if(!error && result !== undefined){
-                short = result.short+1;
-              }  
-            }
-          );
+          data.save(err =>{
+            if(err)
+                return res.send('Error saving to db');
+          });
           
-          res.json(object);
+          shortId++;
+          return res.json({data});
+          
         }
       }
     )
