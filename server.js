@@ -23,7 +23,7 @@ var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/ 
 // mongoose.connect(process.env.DB_URI);
-mongoose.connect("mongodb+srv://kewee123:freecodecamp@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect("mongodb+srv://id:pw@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 /** this project needs to parse POST bodies **/
