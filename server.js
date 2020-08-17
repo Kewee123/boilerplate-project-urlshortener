@@ -23,7 +23,7 @@ var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/ 
 // mongoose.connect(process.env.DB_URI);
-mongoose.connect("mongodb+srv://id:pw@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect("mongodb+srv://kewee123:freecodecamp@cluster0.dohoh.mongodb.net/Cluster0?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 /** this project needs to parse POST bodies **/
@@ -38,7 +38,7 @@ app.get('/', function(req, res){
 
 app.get('/api/shorturl/:shorturl', function(req,res){
   console.log(req.params.shorturl);
-  
+
   tinyUrlModel.findOne({short_url:req.params.shorturl}, (err,data)=>{
     if(err) return res.send('Error reading database');
     
@@ -51,7 +51,7 @@ app.get('/api/shorturl/:shorturl', function(req,res){
       res.redirect(301, 'http://' + data.url)
     }
   })
-  
+  // this function isn't working
 });
 
 app.post('/api/shorturl/new', function(req, res){
@@ -88,7 +88,7 @@ app.post('/api/shorturl/new', function(req, res){
                 return res.send('Error saving to db');
           });
           
-          shortId++;
+          shortId++; // hmm this maps everything to 1 the first time
           return res.json({data});
           
         }
