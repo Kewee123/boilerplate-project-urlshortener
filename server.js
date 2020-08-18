@@ -9,10 +9,9 @@ const dns = require('dns');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
 var app = express();
-var shortId = 1;
 var urlSchema = new Schema({
     url:  {type: String, required: true}, // String is shorthand for {type: String}
-    short_url: {type: Number},
+    short_url: {type: String},
 });
 
 const tinyUrlModel = mongoose.model("tinyUrl", urlSchema);
@@ -83,16 +82,36 @@ app.post('/api/shorturl/new', function(req, res){
         else{
           // get the url and shorten it here
           // store it in the database
-          var object = {'url': req.body.url, 'short_url': shortId};
-          var data = new tinyUrlModel(object);
+          var shortId = crypto.createHash('md5').update(req.body.url).digest('hex');
+          shortId = shortId.substr(0,6);
+          var obj = {'url': req.body.url, 'short_url': shortId};
+          var data = new tinyUrlModel(obj);
           
-          data.save(err =>{
-            if(err)
-                return res.send('Error saving to db');
+          tinyUrlModel.findOne({'url': req.body.url, 'short_url':shortId}, (err, result)=>{
+              if(err)
+              {
+                console.log(err);
+                res.send('Error trying to find something in db');
+              }
+              
+              if(result){
+                console.log("found it nerd");
+                return res.json(result);
+              }else{
+                data.save(err =>{
+                    if(err)
+                        return res.send('Error saving to db');
+                  });
+          
+
+
+                  return res.json({data});
+              }
           });
+      
+    
+
           
-          shortId++; // hmm this maps everything to 1 the first time
-          return res.json({data});
           
         }
       }
