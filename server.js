@@ -43,9 +43,12 @@ app.get('/api/shorturl/:shorturl', function(req,res){
     if(err) return res.send('Error reading database');
     
     console.log(data);
-    var re = new RegExp("^(http|htpps)://", "i");
+    var re = new RegExp("^(http|https)://", "i");
+    console.log(re);
+    console.log("hey", re.test(data.url));
     
     if(re.test(data.url)){
+      console.log(data.url);
       res.redirect(301, data.url)
     } else {
       res.redirect(301, 'http://' + data.url)
